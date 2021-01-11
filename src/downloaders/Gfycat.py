@@ -39,7 +39,9 @@ class Gfycat:
             url = url[:-1]
 
         url = "https://gfycat.com/" + url.split('/')[-1]
-
+        orig_url = url
+        url = urllib.request.Request(url, headers={
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'})
         pageSource = (urllib.request.urlopen(url).read().decode())
 
         soup = BeautifulSoup(pageSource, "html.parser")
@@ -47,6 +49,6 @@ class Gfycat:
         content = soup.find("script",attrs=attributes)
 
         if content is None:
-            return GifDeliveryNetwork.getLink(url)
+            return GifDeliveryNetwork.getLink(orig_url)
 
         return json.loads(content.contents[0])["video"]["contentUrl"]

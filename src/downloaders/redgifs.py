@@ -37,7 +37,8 @@ class Redgifs:
             url = url[:-1]
 
         url = "https://redgifs.com/watch/" + url.split('/')[-1]
-
+        url = urllib.request.Request(url, headers={
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36'})
         pageSource = (urllib.request.urlopen(url).read().decode())
 
         soup = BeautifulSoup(pageSource, "html.parser")
