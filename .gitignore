@@ -142,3 +142,6 @@ test_config.cfg
 
 # IDE
 .idea/
+
+# Custom batch processing
+exclusions.txt
