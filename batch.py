@@ -16,8 +16,8 @@ def parse():
                         metavar="DIRECTORY", required=True)
 
     parser.add_argument("--limit", "-l",
-                        default=200,
-                        help="default: 200",
+                        default=150,
+                        help="default: 150",
                         metavar="Limit",
                         type=int)
 
@@ -41,10 +41,10 @@ def parse():
 
 def start_dl(dir, name, limit, quit):
     command = f"python3 ./script.py  --submitted --sort new --time all --limit {limit} --no-dupes " \
-                   f"--directory {dir}{name} --user {name}"
+                   f"--directory '{dir}{name}' --user '{name}'"
     if quit:
         command += " --quit"
-    print(f"Command being executed:\n{command}"
+    print(f"Command being executed:\n`{command}`"
           "\n----------")
     subprocess.run(command, shell=True)
 
@@ -64,7 +64,10 @@ def load_exclusions():
 def main(args):
     # get exclusion dirs
     exclusions = load_exclusions()
-    with scandir(args.directory) as sc:
+    main_dir = args.directory
+    if main_dir != "/":
+        main_dir += "/"
+    with scandir(main_dir) as sc:
         for dir in sc:
             if not dir.is_dir():
                 continue
@@ -75,7 +78,7 @@ def main(args):
                 break
             if dir.name in exclusions:
                 continue
-            start_dl(args.directory, dir.name, args.limit, args.quit)
+            start_dl(main_dir, dir.name, args.limit, args.quit)
 
 
 if __name__ == '__main__':
