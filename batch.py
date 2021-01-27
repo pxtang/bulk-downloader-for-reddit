@@ -65,7 +65,7 @@ def main(args):
     # get exclusion dirs
     exclusions = load_exclusions()
     main_dir = args.directory
-    if main_dir != "/":
+    if main_dir[-1] != "/":
         main_dir += "/"
     with scandir(main_dir) as sc:
         for dir in sc:
