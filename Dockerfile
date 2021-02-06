@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Bulk Downloader for Reddit
 #
 # VERSION               0.0.1
@@ -7,10 +8,14 @@ LABEL Description="This image enables running Buld Downloader for Reddit with in
 
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
+=======
+FROM python:3.9
+>>>>>>> Pin Dockerfile Python version explicitly to a release tag
 
 EXPOSE 8080
 EXPOSE 7634
 
+<<<<<<< HEAD
 # Install dependencies for building Python packages
 RUN apt-get update \
   && apt-get install -y build-essential \
@@ -29,3 +34,6 @@ WORKDIR /bdfr
 # This is useful because the image name can double as a reference to the binary 
 ENTRYPOINT ["python", "script.py"]
 CMD ["--help"]
+=======
+CMD ["python", "script.py", "-d", "downloads"]
+>>>>>>> Pin Dockerfile Python version explicitly to a release tag
