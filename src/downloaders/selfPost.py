@@ -1,5 +1,6 @@
 import io
 import os
+import pathlib
 from pathlib import Path
 
 from src.errors import FileAlreadyExistsError, TypeInSkip
@@ -10,7 +11,7 @@ VanillaPrint = print
 
 
 class SelfPost:
-    def __init__(self, directory, post):
+    def __init__(self, directory: pathlib.Path, post: dict):
         if "self" in GLOBAL.arguments.skip:
             raise TypeInSkip
 
@@ -35,7 +36,7 @@ class SelfPost:
             self.writeToFile(file_dir, post)
 
     @staticmethod
-    def writeToFile(directory, post):
+    def writeToFile(directory: pathlib.Path, post: dict):
         """Self posts are formatted here"""
         content = ("## ["
                    + post["TITLE"]
