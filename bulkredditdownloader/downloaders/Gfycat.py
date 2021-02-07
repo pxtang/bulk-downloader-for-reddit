@@ -4,10 +4,10 @@ import urllib.request
 
 from bs4 import BeautifulSoup
 
-from src.downloaders.downloaderUtils import getExtension, getFile
-from src.downloaders.gifDeliveryNetwork import GifDeliveryNetwork
-from src.errors import NotADownloadableLinkError
-from src.utils import GLOBAL
+from bulkredditdownloader.downloaders.downloaderUtils import getExtension, getFile
+from bulkredditdownloader.downloaders.gifDeliveryNetwork import GifDeliveryNetwork
+from bulkredditdownloader.errors import NotADownloadableLinkError
+from bulkredditdownloader.utils import GLOBAL
 import pathlib
 
 

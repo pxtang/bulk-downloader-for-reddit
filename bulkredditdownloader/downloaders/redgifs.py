@@ -1,15 +1,16 @@
+import json
 import os
 import pathlib
 import urllib.request
 
 from bs4 import BeautifulSoup
 
-from src.downloaders.downloaderUtils import getExtension, getFile
-from src.errors import NotADownloadableLinkError
-from src.utils import GLOBAL
+from bulkredditdownloader.downloaders.downloaderUtils import getExtension, getFile
+from bulkredditdownloader.errors import NotADownloadableLinkError
+from bulkredditdownloader.utils import GLOBAL
 
 
-class GifDeliveryNetwork:
+class Redgifs:
     def __init__(self, directory: pathlib.Path, post: dict):
         try:
             post['MEDIAURL'] = self.getLink(post['CONTENTURL'])
@@ -31,20 +32,25 @@ class GifDeliveryNetwork:
         """Extract direct link to the video from page's source
         and return it
         """
-        if '.webm' in url.split('/')[-1] or '.mp4' in url.split('/')[-1] or '.gif' in url.split('/')[-1]:
+        if '.webm' in url or '.mp4' in url or '.gif' in url:
             return url
 
         if url[-1:] == '/':
             url = url[:-1]
 
-        url = "https://www.gifdeliverynetwork.com/" + url.split('/')[-1]
+        url = urllib.request.Request("https://redgifs.com/watch/" + url.split('/')[-1])
+
+        url.add_header(
+            'User-Agent',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36 OPR/54.0.2952.64')
+
         page_source = (urllib.request.urlopen(url).read().decode())
 
         soup = BeautifulSoup(page_source, "html.parser")
-        attributes = {"id": "mp4Source", "type": "video/mp4"}
-        content = soup.find("source", attrs=attributes)
+        attributes = {"data-react-helmet": "true", "type": "application/ld+json"}
+        content = soup.find("script", attrs=attributes)
 
         if content is None:
             raise NotADownloadableLinkError("Could not read the page source")
 
-        return content["src"]
+        return json.loads(content.contents[0])["video"]["contentUrl"]
