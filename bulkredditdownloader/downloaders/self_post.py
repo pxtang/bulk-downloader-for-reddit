@@ -3,6 +3,7 @@ import os
 import pathlib
 from pathlib import Path
 
+from bulkredditdownloader.downloaders.base_downloader import BaseDownloader
 from bulkredditdownloader.errors import FileAlreadyExistsError, TypeInSkip
 from bulkredditdownloader.utils import GLOBAL
 from bulkredditdownloader.utils import printToFile as print
@@ -10,8 +11,9 @@ from bulkredditdownloader.utils import printToFile as print
 VanillaPrint = print
 
 
-class SelfPost:
+class SelfPost(BaseDownloader):
     def __init__(self, directory: pathlib.Path, post: dict):
+        super().__init__(directory, post)
         if "self" in GLOBAL.arguments.skip:
             raise TypeInSkip
 
