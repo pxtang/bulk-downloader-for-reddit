@@ -111,7 +111,6 @@ class Imgur:
 
     @staticmethod
     def getData(link):
-
         cookies = {"over18": "1", "postpagebeta": "0"}
         res = requests.get(link, cookies=cookies)
         if res.status_code != 200:
