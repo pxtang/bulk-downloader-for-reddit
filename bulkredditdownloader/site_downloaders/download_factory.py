@@ -32,6 +32,8 @@ class DownloadFactory:
             return GifDeliveryNetwork
         elif re.match(url_beginning + r'imgur.*', url):
             return Imgur
+        elif re.match(url_beginning + r'i\.imgur.*\.gifv$', url):
+            return Imgur
         elif re.match(url_beginning + r'redgifs.com', url):
             return Redgifs
         elif re.match(url_beginning + r'reddit\.com/r/', url):
@@ -40,7 +42,9 @@ class DownloadFactory:
             return VReddit
         elif re.match(url_beginning + r'youtu\.?be', url):
             return Youtube
-        elif re.match(url_beginning + r'i\.redd\.it.*', url) or re.match(url_beginning + r'.*\..{3,4}$', url):
+        elif re.match(url_beginning + r'i\.redd\.it.*', url):
+            return Direct
+        elif re.match(url_beginning + r'.*\..{3,4}$', url):
             return Direct
         else:
             raise NotADownloadableLinkError('No downloader module exists for url {}'.format(url))
