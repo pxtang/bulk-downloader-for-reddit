@@ -368,6 +368,9 @@ def extractDirectLink(URL):
 
 def genLinksifGallery(metadata):
     galleryImgUrls = list()
+    if metadata == None:
+        print("this metadata was None, continuing")
+        return galleryImgUrls
     for key in metadata:
         galleryImgUrls.append(metadata[key]['s']['u'].split('?')[0].replace('preview','i'))
     return galleryImgUrls
