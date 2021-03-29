@@ -22,12 +22,12 @@ def parse():
                         type=int)
 
     parser.add_argument("--start",
-                        help="Specify directory to start grabbing from. Soft comparison match - lowercase only",
+                        help="Specify letter to start grabbing from. Soft comparison match - lowercase only. Inclusive.",
                         metavar="DIRECTORY",
                         default="")
 
     parser.add_argument("--end",
-                        help="Specify directory to stop grabbing at. Soft comparison match - lowercase only",
+                        help="Specify letter to stop grabbing at. Soft comparison match - lowercase only. Exclusive.",
                         metavar="DIRECTORY",
                         default="")
 
@@ -39,9 +39,9 @@ def parse():
     return parser.parse_args()
 
 
-def start_dl(dir, name, limit, quit):
+def start_dl(directory, name, limit, quit):
     command = f"python3 ./script.py  --submitted --sort new --time all --limit {limit} --no-dupes " \
-                   f"--directory '{dir}{name}' --user '{name}'"
+                   f"--directory '{directory}{name}' --user '{name}'"
     if quit:
         command += " --quit"
     print(f"Command being executed:\n`{command}`"
@@ -67,18 +67,18 @@ def main(args):
     main_dir = args.directory
     if main_dir[-1] != "/":
         main_dir += "/"
-    with scandir(main_dir) as sc:
-        for dir in sc:
-            if not dir.is_dir():
+    dirlist = sorted(scandir(main_dir), key=lambda x: x.name.lower())
+        for directory in dirlist:
+            if not directory.is_dir():
                 continue
-            if args.start != "" and args.start > dir.name.lower():
+            if args.start != "" and args.start > directory.name.lower():
                 continue
-            if args.end != "" and args.end < dir.name.lower():
-                print(f"Directory {dir.name} is after {args.end}, stopping.")
+            if args.end != "" and args.end < directory.name.lower():
+                print(f"Directory {directory.name} is after {args.end}, stopping.")
                 break
-            if dir.name in exclusions:
+            if directory.name in exclusions:
                 continue
-            start_dl(main_dir, dir.name, args.limit, args.quit)
+            start_dl(main_dir, directory.name, args.limit, args.quit)
 
 
 if __name__ == '__main__':
