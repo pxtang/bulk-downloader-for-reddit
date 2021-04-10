@@ -68,17 +68,17 @@ def main(args):
     if main_dir[-1] != "/":
         main_dir += "/"
     dirlist = sorted(scandir(main_dir), key=lambda x: x.name.lower())
-        for directory in dirlist:
-            if not directory.is_dir():
-                continue
-            if args.start != "" and args.start > directory.name.lower():
-                continue
-            if args.end != "" and args.end < directory.name.lower():
-                print(f"Directory {directory.name} is after {args.end}, stopping.")
-                break
-            if directory.name in exclusions:
-                continue
-            start_dl(main_dir, directory.name, args.limit, args.quit)
+    for directory in dirlist:
+        if not directory.is_dir():
+            continue
+        if args.start != "" and args.start > directory.name.lower():
+            continue
+        if args.end != "" and args.end < directory.name.lower():
+            print(f"Directory {directory.name} is after {args.end}, stopping.")
+            break
+        if directory.name in exclusions:
+            continue
+        start_dl(main_dir, directory.name, args.limit, args.quit)
 
 
 if __name__ == '__main__':
