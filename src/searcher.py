@@ -372,5 +372,8 @@ def genLinksifGallery(metadata):
         print("this metadata was None, continuing")
         return galleryImgUrls
     for key in metadata:
-        galleryImgUrls.append(metadata[key]['s']['u'].split('?')[0].replace('preview','i'))
+        try:
+            galleryImgUrls.append(metadata[key]['s']['u'].split('?')[0].replace('preview','i'))
+        except KeyError as exc: # TODO wait for a proper fix in v2
+            print("ran into some KeyError? continuing anyways")
     return galleryImgUrls
