@@ -1,13 +1,27 @@
-# Bulk Downloader for Reddit v2-beta
+# Bulk Downloader for Reddit
+[![PyPI version](https://img.shields.io/pypi/v/bdfr.svg)](https://pypi.python.org/pypi/bdfr)
+[![PyPI downloads](https://img.shields.io/pypi/dm/bdfr)](https://pypi.python.org/pypi/bdfr)
+[![Python Test](https://github.com/aliparlakci/bulk-downloader-for-reddit/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/aliparlakci/bulk-downloader-for-reddit/actions/workflows/test.yml)
 
-This is a tool to download submissions or submission data from Reddit. It can be used to archive data or even crawl Reddit to gather research data. The BDFR is flexible and can be used in scripts if needed through an extensive command-line interface.
+This is a tool to download submissions or submission data from Reddit. It can be used to archive data or even crawl Reddit to gather research data. The BDFR is flexible and can be used in scripts if needed through an extensive command-line interface. [List of currently supported sources](#list-of-currently-supported-sources)
 
-Some quick reference commands are:
+If you wish to open an issue, please read [the guide on opening issues](docs/CONTRIBUTING.md#opening-an-issue) to ensure that your issue is clear and contains everything it needs to for the developers to investigate.
 
-  - `python3 -m bulkredditdownloader download --subreddit Python -L 10`
-  - `python3 -m bulkredditdownloader download --user me --saved --authenticate -L 25 --file-scheme '{POSTID}'`
-  - `python3 -m bulkredditdownloader download --subreddit 'Python, all, mindustry' -L 10 --make-hard-links`
-  - `python3 -m bulkredditdownloader archive --subreddit all --format yaml -L 500 --folder-scheme ''`
+## Installation
+*Bulk Downloader for Reddit* needs Python version 3.9 or above. Please update Python before installation to meet the requirement. Then, you can install it as such:
+```bash
+python3 -m pip install bdfr --upgrade
+```
+**To update BDFR**, run the above command again after the installation.
+
+### AUR Package
+If on Arch Linux or derivative operating systems such as Manjaro, the BDFR can be installed through the AUR.
+
+- Latest Release: https://aur.archlinux.org/packages/python-bdfr/
+- Latest Development Build: https://aur.archlinux.org/packages/python-bdfr-git/
+
+### Source code
+If you want to use the source code or make contributions, refer to [CONTRIBUTING](docs/CONTRIBUTING.md#preparing-the-environment-for-development)
 
 ## Usage
 
@@ -15,20 +29,30 @@ The BDFR works by taking submissions from a variety of "sources" from Reddit and
 
 There are two modes to the BDFR: download, and archive. Each one has a command that performs similar but distinct functions. The `download` command will download the resource linked in the Reddit submission, such as the images, video, etc. The `archive` command will download the submission data itself and store it, such as the submission details, upvotes, text, statistics, as and all the comments on that submission. These can then be saved in a data markup language form, such as JSON, XML, or YAML.
 
-Many websites and links are supported for the downloader:
+After installation, run the program from any directory as shown below:
+```bash
+python3 -m bdfr download
+```
+```bash
+python3 -m bdfr archive
+```
 
-  - Direct links (links leading to a file)
-  - Erome
-  - Gfycat
-  - Gif Delivery Network
-  - Imgur
-  - Reddit Galleries
-  - Reddit Text Posts
-  - Reddit Videos
-  - Redgifs
-  - Youtube
+However, these commands are not enough. You should chain parameters in [Options](#options) according to your use case. Don't forget that some parameters can be provided multiple times. Some quick reference commands are:
 
-### Options
+```bash
+python3 -m bdfr download ./path/to/output --subreddit Python -L 10
+```
+```bash
+python3 -m bdfr download ./path/to/output --user me --saved --authenticate -L 25 --file-scheme '{POSTID}'
+```
+```bash
+python3 -m bdfr download ./path/to/output --subreddit 'Python, all, mindustry' -L 10 --make-hard-links
+```
+```bash
+python3 -m bdfr archive ./path/to/output --subreddit all --format yaml -L 500 --folder-scheme ''
+```
+
+## Options
 
 The following options are common between both the `archive` and `download` commands of the BDFR.
 
@@ -36,10 +60,13 @@ The following options are common between both the `archive` and `download` comma
   - This is the directory to which the BDFR will download and place all files
 - `--authenticate`
   - This flag will make the BDFR attempt to use an authenticated Reddit session
-  - See [Authentication](#authentication) for more details
+  - See [Authentication](#authentication-and-security) for more details
 - `--config`
   - If the path to a configuration file is supplied with this option, the BDFR will use the specified config
   - See [Configuration Files](#configuration) for more details
+- `--log`
+  - This allows one to specify the location of the logfile
+  - This must be done when running multiple instances of the BDFR, see [Multiple Instances](#multiple-instances) below
 - `--saved`
   - This option will make the BDFR use the supplied user's saved posts list as a download source
   - This requires an authenticated Reddit instance, using the `--authenticate` flag, as well as `--user` set to `me`
@@ -91,6 +118,9 @@ The following options are common between both the `archive` and `download` comma
     - `week`
     - `month`
     - `year`
+  - `--time-format`
+    - This specifies the format of the datetime string that replaces `{DATE}` in file and folder naming schemes
+    - See [Time Formatting Customisation](#time-formatting-customisation) for more details, and the formatting scheme
 - `-u, --user`
   - This specifies the user to scrape in concert with other options
   - When using `--authenticate`, `--user me` can be used to refer to the authenticated user
@@ -98,7 +128,7 @@ The following options are common between both the `archive` and `download` comma
   - Increases the verbosity of the program
   - Can be specified multiple times
 
-#### Downloader Options
+### Downloader Options
 
 The following options apply only to the `download` command. This command downloads the files and resources linked to in the submission, or a text submission itself, to the disk in the specified directory.
 
@@ -112,6 +142,10 @@ The following options apply only to the `download` command. This command downloa
 - `--make-hard-links`
   - This flag will create hard links to an existing file when a duplicate is downloaded
   - This will make the file appear in multiple directories while only taking the space of a single instance
+- `--max-wait-time`
+  - This option specifies the maximum wait time for downloading a resource
+  - The default is 120 seconds
+  - See [Rate Limiting](#rate-limiting) for details
 - `--no-dupes`
   - This flag will not redownload files if they already exist somewhere in the root folder tree
   - This is calculated by MD5 hash
@@ -131,8 +165,12 @@ The following options apply only to the `download` command. This command downloa
 - `--skip`
   - This adds file types to the download filter i.e. submissions with one of the supplied file extensions will not be downloaded
   - Can be specified multiple times
+- `--skip-subreddit`
+  - This skips all submissions from the specified subreddit
+  - Can be specified multiple times
+  - Also accepts CSV subreddit names
 
-#### Archiver Options
+### Archiver Options
 
 The following options are for the `archive` command specifically.
 
@@ -145,7 +183,7 @@ The following options are for the `archive` command specifically.
     - `xml`
     - `yaml`
 
-## Authentication and Secuirity
+## Authentication and Security
 
 The BDFR uses OAuth2 authentication to connect to Reddit if authentication is required. This means that it is a secure, token-based system for making requests. This also means that the BDFR only has access to specific parts of the account authenticated, by default only saved posts, upvoted posts, and the identity of the authenticated account. Note that authentication is not required unless accessing private things like upvoted posts, saved posts, and private multireddits.
 
@@ -185,14 +223,20 @@ It is highly recommended that the file name scheme contain the parameter `{POSTI
 ## Configuration
 
 The configuration files are, by default, stored in the configuration directory for the user. This differs depending on the OS that the BDFR is being run on. For Windows, this will be:
-  - `C:\Documents and Settings\<User>\Application Data\Local Settings\BDFR\bulkredditdownloader` or
-  - `C:\Documents and Settings\<User>\Application Data\BDFR\bulkredditdownloader`
+
+  - `C:\Users\<User>\AppData\Local\BDFR\bdfr`
+
+If Python has been installed through the Windows Store, the folder will appear in a different place. Note that the hash included in the file path may change from installation to installation.
+
+  - `C:\Users\<User>\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.9_qbz5n2kfra8p0\LocalCache\Local\BDFR\bdfr`
 
 On Mac OSX, this will be:
-  - `~/Library/Application Support/bulkredditdownloader`. 
+
+  - `~/Library/Application Support/bdfr`. 
     
 Lastly, on a Linux system, this will be:
-  - `~/.local/share/bulkredditdownloader`
+
+  - `~/.config/bdfr/`
 
 The logging output for each run of the BDFR will be saved to this directory in the file `log_output.txt`. If you need to submit a bug, it is this file that you will need to submit with the report.
 
@@ -200,14 +244,57 @@ The logging output for each run of the BDFR will be saved to this directory in t
 
 The `config.cfg` is the file that supplies the BDFR with the configuration to use. At the moment, the following keys **must** be included in the configuration file supplied.
 
-  - `backup_log_count`
   - `client_id`
   - `client_secret`
   - `scopes`
 
+The following keys are optional, and defaults will be used if they cannot be found.
+
+  - `backup_log_count`
+  - `max_wait_time`
+  - `time_format`
+
 All of these should not be modified unless you know what you're doing, as the default values will enable the BDFR to function just fine. A configuration is included in the BDFR when it is installed, and this will be placed in the configuration directory as the default.
 
 Most of these values have to do with OAuth2 configuration and authorisation. The key `backup_log_count` however has to do with the log rollover. The logs in the configuration directory can be verbose and for long runs of the BDFR, can grow quite large. To combat this, the BDFR will overwrite previous logs. This value determines how many previous run logs will be kept. The default is 3, which means that the BDFR will keep at most three past logs plus the current one. Any runs past this will overwrite the oldest log file, called "rolling over". If you want more records of past runs, increase this number.
+
+#### Time Formatting Customisation
+
+The option `time_format` will specify the format of the timestamp that replaces `{DATE}` in filename and folder name schemes. By default, this is the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format which is highly recommended due to its standardised nature. If you don't **need** to change it, it is recommended that you do not. However, you can specify it to anything required with this option. The `--time-format` option supersedes any specification in the configuration file
+
+The format can be specified through the [format codes](https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior) that are standard in the Python `datetime` library.
+
+### Rate Limiting
+
+The option `max_wait_time` has to do with retrying downloads. There are certain HTTP errors that mean that no amount of requests will return the wanted data, but some errors are from rate-limiting. This is when a single client is making so many requests that the remote website cuts the client off to preserve the function of the site. This is a common situation when downloading many resources from the same site. It is polite and best practice to obey the website's wishes in these cases.
+
+To this end, the BDFR will sleep for a time before retrying the download, giving the remote server time to "rest". This is done in 60 second increments. For example, if a rate-limiting-related error is given, the BDFR will sleep for 60 seconds before retrying. Then, if the same type of error occurs, it will sleep for another 120 seconds, then 180 seconds, and so on.
+
+The option `--max-wait-time` and the configuration option `max_wait_time` both specify the maximum time the BDFR will wait. If both are present, the command-line option takes precedence. For instance, the default is 120, so the BDFR will wait for 60 seconds, then 120 seconds, and then move one. **Note that this results in a total time of 180 seconds trying the same download**. If you wish to try to bypass the rate-limiting system on the remote site, increasing the maximum wait time may help. However, note that the actual wait times increase exponentially if the resource is not downloaded i.e. specifying a max value of 300 (5 minutes), can make the BDFR pause for 15 minutes on one submission, not 5, in the worst case.
+
+## Multiple Instances
+
+The BDFR can be run in multiple instances with multiple configurations, either concurrently or consecutively. The use of scripting files facilitates this the easiest, either Powershell on Windows operating systems or Bash elsewhere. This allows multiple scenarios to be run with data being scraped from different sources, as any two sets of scenarios might be mutually exclusive i.e. it is not possible to download any combination of data from a single run of the BDFR. To download from multiple users for example, multiple runs of the BDFR are required.
+
+Running these scenarios consecutively is done easily, like any single run. Configuration files that differ may be specified with the `--config` option to switch between tokens, for example. Otherwise, almost all configuration for data sources can be specified per-run through the command line.
+
+Running scenarious concurrently (at the same time) however, is more complicated. The BDFR will look to a single, static place to put the detailed log files, in a directory with the configuration file specified above. If there are multiple instances, or processes, of the BDFR running at the same time, they will all be trying to write to a single file. On Linux and other UNIX based operating systems, this will succeed, though there is a substantial risk that the logfile will be useless due to garbled and jumbled data. On Windows however, attempting this will raise an error that crashes the program as Windows forbids multiple processes from accessing the same file.
+
+The way to fix this is to use the `--log` option to manually specify where the logfile is to be stored. If the given location is unique to each instance of the BDFR, then it will run fine.
+
+## List of currently supported sources
+
+  - Direct links (links leading to a file)
+  - Erome
+  - Gfycat
+  - Gif Delivery Network
+  - Imgur
+  - Reddit Galleries
+  - Reddit Text Posts
+  - Reddit Videos
+  - Redgifs
+  - YouTube
+  - Streamable
 
 ## Contributing
 

@@ -139,9 +139,3 @@ cython_debug/
 
 # Test configuration file
 test_config.cfg
-
-# IDE
-.idea/
-
-# Custom batch processing
-exclusions.txt
