@@ -15,7 +15,7 @@ def parse():
                              "downloaded to previously",
                         metavar="DIRECTORY", required=True)
 
-    parser.add_argument("--limit", "-l",
+    parser.add_argument("--limit", "-L",
                         default=150,
                         help="default: 150",
                         metavar="Limit",
@@ -31,26 +31,22 @@ def parse():
                         metavar="DIRECTORY",
                         default="")
 
-    parser.add_argument("--quit", "-q",
-                        help="Auto quit after each process finishes",
-                        action="store_true",
-                        default=False)
+    parser.add_argument("--users", "-u",
+                        help="Comma separated list of users")
 
     return parser.parse_args()
 
 
-def start_dl(directory, name, limit, quit):
-    command = f"python3 ./script.py  --submitted --sort new --time all --limit {limit} --no-dupes " \
-                   f"--directory '{directory}{name}' --user '{name}'"
-    if quit:
-        command += " --quit"
+def start_dl(directory, name, limit):
+    command = f"python3.9 -m bdfr download '{directory}{name}' --submitted --sort new --time all -L {limit} --user '{name}' " \
+                   f"--no-dupes --search-existing"
+
     print(f"Command being executed:\n`{command}`"
           "\n----------")
     subprocess.run(command, shell=True)
 
-    if quit:
-        print("Sleeping 10 seconds before automatically moving on")
-        sleep(10)
+    print("Sleeping 10 seconds before automatically moving on")
+    sleep(10)
 
 
 def load_exclusions():
@@ -62,23 +58,28 @@ def load_exclusions():
 
 
 def main(args):
-    # get exclusion dirs
-    exclusions = load_exclusions()
     main_dir = args.directory
     if main_dir[-1] != "/":
         main_dir += "/"
-    dirlist = sorted(scandir(main_dir), key=lambda x: x.name.lower())
-    for directory in dirlist:
-        if not directory.is_dir():
-            continue
-        if args.start != "" and args.start > directory.name.lower():
-            continue
-        if args.end != "" and args.end < directory.name.lower():
-            print(f"Directory {directory.name} is after {args.end}, stopping.")
-            break
-        if directory.name in exclusions:
-            continue
-        start_dl(main_dir, directory.name, args.limit, args.quit)
+    if len(args.users):
+        users = args.users.split(",")
+        for user in users:
+            start_dl(main_dir, user, args.limit)
+    else: # default is to update everything in dirs
+        # get exclusion dirs
+        exclusions = load_exclusions()
+        dirlist = sorted(scandir(main_dir), key=lambda x: x.name.lower())
+        for directory in dirlist:
+            if not directory.is_dir():
+                continue
+            if args.start != "" and args.start > directory.name.lower():
+                continue
+            if args.end != "" and args.end < directory.name.lower():
+                print(f"Directory {directory.name} is after {args.end}, stopping.")
+                break
+            if directory.name in exclusions:
+                continue
+            start_dl(main_dir, directory.name, args.limit)
 
 
 if __name__ == '__main__':
