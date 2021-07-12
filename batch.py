@@ -61,7 +61,7 @@ def main(args):
     main_dir = args.directory
     if main_dir[-1] != "/":
         main_dir += "/"
-    if len(args.users):
+    if args.users is not None and len(args.users):
         users = args.users.split(",")
         for user in users:
             start_dl(main_dir, user, args.limit)
