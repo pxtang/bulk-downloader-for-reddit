@@ -142,3 +142,6 @@ test_config.cfg
 
 .vscode/
 .idea/
+
+# pxtang custom
+exclusions.txt
